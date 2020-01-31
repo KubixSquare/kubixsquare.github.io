@@ -107,7 +107,7 @@ $(document).ready(function() {
 		var c = {
 			year : 2020,
 			month : 02,
-			day : 10,
+			day : 01,
 			hh : 00,
 			min : 00,
 			sec : 0,

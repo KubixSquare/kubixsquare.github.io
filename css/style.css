@@ -4981,12 +4981,17 @@ button.btn.btn-link.collapsed{
     box-shadow: 0 0 45px rgba(0, 0, 0, 0.15);
     top: 50%;
     left: 50%;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    /* padding-top: 45px; */
+    /* padding-bottom: 5px; */
 }
 
 .icons-animation-holder .aicon-main svg.logo {
     width: 62px;
+    height: auto;
+}
+
+.icons-animation-holder .aicon-main .img.bg {
+    background-image: url(../kubixsquarecircle.png);
     height: auto;
 }
 
@@ -5141,7 +5146,7 @@ button.btn.btn-link.collapsed{
     left: 0;
     top: 0;
     width: 100%;
-    height: 100%;
+    height: 120%;
     z-index: 0;
 }
 
@@ -6820,7 +6825,7 @@ button.btn.btn-link.collapsed{
     }
 
     .icons-animation-holder .aicon-main {
-        padding-top: 36px;
+        padding-top: 18px;
     }
 
     .icons-animation-holder .aicon-main svg .logo {
